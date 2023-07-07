@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+	<head>
+		{% if title %}
+		<title>{{ title }} - Trakr</title>
+		{% else %}
+		<title>Welcome to Trakr</title>
+		{% endif %}
+	</head>
+	<body>
+		<div>Trakr: <a href="/index">Home</a></div>
+		<hr />
+		{% block content %}{% endblock %}
+	</body>
+</html>

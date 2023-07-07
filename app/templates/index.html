@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>Hello, {{ user.username }}!!</h1>
+	<h2>Recent Measures:</h2>
+	<table>
+	<th>
+	<td>Location</td>
+	<td>Article</td>
+	<td>Type</td>
+	<td>Value</td>
+	<td>Time</td>
+	</th>
+	{% for measure in measures %}
+	<tr>
+		<td>{{ measure.location }}</td>
+		<td>{{ measure.article }}</td>
+		<td>{{ measure.type }}</td>
+		<td>{{ measure.value }}</td>
+		<td>{{ measure.datetime }}</td>
+	</tr>
+	{% endfor %}
+	</table>
+{% endblock %}
