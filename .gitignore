@@ -3,3 +3,4 @@ logs/*
 *.code-workspace
 trakr.py
 .flaskenv
+config.py

@@ -1,0 +1,1 @@
+This Flask-based Python web application is intended to be used to manage (configure, store, and make available for reporting) a set of measures captured by a collection of sensors of various types across various locations.  Storage is intended to be simple and performant. 
