@@ -2,6 +2,7 @@ app.db
 logs/*
 *.code-workspace
 *.pyc
+*.pdf
 trakr.py
 .flaskenv
 config.py
