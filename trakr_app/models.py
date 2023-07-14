@@ -5,7 +5,7 @@ from flask_login import UserMixin
 
 
 class User(UserMixin,db.Model):
-    username=db.Column(db.String(64, collation='NOCASE'), index=True, unique=True, primary_key=True)
+    username=db.Column(db.String(64), index=True, unique=True, primary_key=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     location = db.relationship('Location', backref='editor', lazy='dynamic')
@@ -19,6 +19,9 @@ class User(UserMixin,db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def get_id(self):
+        return (self.username)
     
     
 class Location(db.Model):

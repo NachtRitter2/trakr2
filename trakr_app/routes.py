@@ -1,5 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import current_user, login_user, logout_user, login_required
+from sqlalchemy.sql import func
 from werkzeug.urls import url_parse
 from datetime import datetime, timedelta
 from trakr_app import app, db
@@ -65,7 +66,8 @@ def login():
         return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.get(form.username.data)
+        user = User.query.filter(func.lower(User.username) == form.username.data.lower()).first()
+        app.logger.info(user)
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('login'))

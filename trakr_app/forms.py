@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
+from sqlalchemy.sql import func
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
+from trakr_app import db
 from trakr_app.models import User
 
 class LoginForm(FlaskForm):
@@ -17,7 +19,7 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_username(self, username):
-        user = User.query.get(username)
+        user = User.query.filter(func.lower(User.username) == username.data.lower()).first()
         if user is not None:
             raise ValidationError('Please use a different username.')
         
