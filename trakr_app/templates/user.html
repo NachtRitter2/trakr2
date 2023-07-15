@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table>
+        <tr>
+            <td><img src="{{ user.avatar(128) }}"></td>
+            <td>User: {{ user.username }}</td>
+        </tr>
+    </table>
+    
+    <hr>
+    {% if user.is_admin %}
+    <p>User is administrator</p>
+    {% else %}
+    <p>User is viewer</p>
+    {% endif %}
+
+{% endblock %}

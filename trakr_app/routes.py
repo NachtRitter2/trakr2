@@ -38,8 +38,6 @@ def before():
 def index():
     app.logger.debug('Entered index code section')
 
-    user = {'username':'Dasher'}
-
     measures = [
         {
             'location': 'Bedroom1',
@@ -90,10 +88,16 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
+        user = User(username=form.username.data, email=form.email.data.lower())
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.get_or_404(username)
+    return render_template('user.html', user=user)
