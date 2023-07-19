@@ -4,11 +4,11 @@ from sqlalchemy.sql import func
 from werkzeug.urls import url_parse
 from datetime import datetime, timedelta
 from trakr_app import app, db
-from trakr_app.forms import LoginForm, RegistrationForm
-from trakr_app.models import User
+from trakr_app.forms import LoginForm, RegistrationForm, EditProfileForm
+from trakr_app.models import User, Location, Sensor
 
 @app.before_request
-def before():
+def before_request():
     # For debugging purposes, read out the url and the attributes
     url = 'full url: ' + request.url
     app.logger.debug(url)
@@ -30,6 +30,11 @@ def before():
     for key in request.values:
         values += key + ': ' + request.values[key] + ', '
     app.logger.debug(values)
+
+    # Capture user's visit time
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
 
 
 @app.route('/')
@@ -100,4 +105,22 @@ def register():
 @login_required
 def user(username):
     user = User.query.get_or_404(username)
-    return render_template('user.html', user=user)
+    locations = Location.query.all()
+    sensors = Sensor.query.all()
+    return render_template('user.html', user=user, locations=locations, sensors=sensors)
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.firstname = form.firstname.data
+        current_user.lastname = form.lastname.data
+        current_user.about_me = form.about_me.data
+        db.session.commit()
+        flash('Your changes have been saved')
+    elif request.method == 'GET':
+        form.firstname.data = current_user.firstname
+        form.lastname.data = current_user.lastname
+        form.about_me.data = current_user.about_me
+    return render_template('edit_profile.html', title='Edit Profile', form=form)

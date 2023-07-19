@@ -6,10 +6,14 @@ from flask_login import UserMixin
 
 
 class User(UserMixin,db.Model):
-    username=db.Column(db.String(64), index=True, unique=True, primary_key=True)
+    username = db.Column(db.String(64), index=True, unique=True, primary_key=True)
+    firstname = db.Column(db.String(128))
+    lastname = db.Column(db.String(128))
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
+    about_me = db.Column(db.String(256))
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     location = db.relationship('Location', backref='editor', lazy='dynamic')
     sensor = db.relationship('Sensor', backref='editor', lazy='dynamic')
 
@@ -34,9 +38,9 @@ class User(UserMixin,db.Model):
 class Location(db.Model):
     name = db.Column(db.String(64), index=True, unique=True, primary_key=True)
     description = db.Column(db.String(140))
-    isObsolete = db.Column(db.Boolean, default=False)
-    updatedDtm = db.Column(db.DateTime, default=datetime.utcnow)
-    updatedBy = db.Column(db.String(64), db.ForeignKey('user.username'))
+    is_obsolete = db.Column(db.Boolean, default=False)
+    updated_dtm = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_by = db.Column(db.String(64), db.ForeignKey('user.username'))
     sensor = db.relationship('Sensor', backref='place', lazy='dynamic')
     reading = db.relationship('Reading', backref='place', lazy='dynamic')
 
@@ -44,14 +48,14 @@ class Location(db.Model):
         return '<Location {}>'.format(self.name)
     
 class Sensor(db.Model):
-    sensorSerialNr = db.Column(db.Integer, primary_key=True )
+    serial_nr = db.Column(db.Integer, primary_key=True )
     name = db.Column(db.String(64))
-    sensorType = db.Column(db.String(64))
-    lowerLimit = db.Column(db.Integer)
-    upperLimit = db.Column(db.Integer)
+    type = db.Column(db.String(64))
+    lower_limit = db.Column(db.Integer)
+    upper_limit = db.Column(db.Integer)
     location = db.Column(db.String(64), db.ForeignKey('location.name'))
-    updatedDtm = db.Column(db.DateTime, default=datetime.utcnow)
-    updatedBy = db.Column(db.String(64), db.ForeignKey('user.username'))
+    updated_dtm = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_by = db.Column(db.String(64), db.ForeignKey('user.username'))
     reading = db.relationship('Reading', backref='sensor', lazy='dynamic')
 
     def __repr__(self):
@@ -59,12 +63,12 @@ class Sensor(db.Model):
     
 class Reading(db.Model):
     location = db.Column(db.String(64), db.ForeignKey('location.name'))
-    sensorSerialNr = db.Column(db.Integer, db.ForeignKey('sensor.sensorSerialNr'), primary_key=True)
-    readingDtm = db.Column(db.DateTime, default=datetime.utcnow, primary_key=True)
+    serial_nr = db.Column(db.Integer, db.ForeignKey('sensor.serial_nr'), primary_key=True)
+    reading_dtm = db.Column(db.DateTime, default=datetime.utcnow, primary_key=True)
     value = db.Column(db.Float)
 
     def __repr__(self):
-        return '<Reading {}: {} at {}>'.format(self.sensorSerialNr, self.readingDtm, self.value)
+        return '<Reading {}: {} at {}>'.format(self.serial_nr, self.reading_dtm, self.value)
 
 @login.user_loader
 def load_user(username):
