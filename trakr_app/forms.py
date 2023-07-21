@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from sqlalchemy.sql import func
-from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, TextAreaField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms.fields.html5 import DateTimeLocalField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
 from trakr_app import db
 from trakr_app.models import User
@@ -33,3 +34,20 @@ class EditProfileForm(FlaskForm):
     lastname = StringField('Last Name')
     about_me = TextAreaField('About me', validators=[Length(min=0, max=140)])
     submit = SubmitField('Submit')
+
+class ActionForm(FlaskForm):
+    name = StringField('Action Name', validators=[DataRequired()])
+    description = StringField('Action Description', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Add')
+
+class DeviceForm(FlaskForm):
+    name = StringField('Device Name', validators=[DataRequired()])
+    location = SelectField('Device Location', validators=[DataRequired()])
+    description = StringField('Device Description', validators=[Length(min=0, max=140)])
+    submit = SubmitField('Add')
+
+class EventForm(FlaskForm):
+    device = SelectField('Device', validators=[DataRequired()])
+    action = SelectField('Action', validators=[DataRequired()])
+    event_dtm = DateTimeLocalField('Event Date and Time', format='%Y-%m-%dT%H:%M')
+    submit = SubmitField('Add')

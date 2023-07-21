@@ -2,23 +2,57 @@
 
 {% block content %}
 	<h1>Hello, {{ current_user.username }}!!</h1>
-	<h2>Recent Measures:</h2>
+
+	<form action="" method="post">
+		{{ form.hidden_tag() }}
+		<p>
+			{{ form.device.label }}<br/>
+			{{ form.device }}<br/>
+			{% for error in form.device.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ form.action.label }}<br/>
+			{{ form.action }}<br/>
+			{% for error in form.action.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ form.event_dtm.label }}<br/>
+			{{ form.event_dtm(type="datetime-local") }}<br/>
+			{% for error in form.event_dtm.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>{{ form.submit() }} </p>
+	
+	</form>
+	
+
+	<h2>Recent Events:</h2>
+	<table>
+		<tr>
+			<th>Device</th>
+			<th>Action</th>
+			<th>Event Time</th>
+		</tr>
+		{% for event in events %}
+            {% include '_event.html' %}
+		{% endfor %}
+	</table>
+	<h2>Recent Readings:</h2>
 	<table>
 		<tr>
 			<th>Location</th>
-			<th>Article</th>
-			<th>Type</th>
+			<th>Sensor Nr</th>
 			<th>Value</th>
 			<th>Time</th>
 		</tr>
-		{% for measure in measures %}
-		<tr>
-			<td>{{ measure.location }}</td>
-			<td>{{ measure.article }}</td>
-			<td>{{ measure.type }}</td>
-			<td>{{ measure.value }}</td>
-			<td>{{ measure.datetime }}</td>
-		</tr>
+		{% for reading in readings %}
+            {% include '_reading.html' %}
 		{% endfor %}
 	</table>
+
 {% endblock %}

@@ -4,8 +4,8 @@ from sqlalchemy.sql import func
 from werkzeug.urls import url_parse
 from datetime import datetime, timedelta
 from trakr_app import app, db
-from trakr_app.forms import LoginForm, RegistrationForm, EditProfileForm
-from trakr_app.models import User, Location, Sensor
+from trakr_app.forms import LoginForm, RegistrationForm, EditProfileForm, EventForm, DeviceForm, ActionForm
+from trakr_app.models import User, Location, Sensor, Reading, Event, Action, Device
 
 @app.before_request
 def before_request():
@@ -37,30 +37,28 @@ def before_request():
         db.session.commit()
 
 
-@app.route('/')
-@app.route('/index')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     app.logger.debug('Entered index code section')
+    form = EventForm()
+    form.device.choices = [device.name for device in Device.query.all()]
+    form.action.choices = [action.name for action in Action.query.all()]
+    
+    if form.validate_on_submit():
+        event = Event(device=form.device.data, 
+                      action=form.action.data, 
+                      event_dtm = form.event_dtm.data, 
+                      updated_by=current_user.username)
+        db.session.add(event)
+        db.session.commit()
+        flash('Event has been submitted!')
+        return redirect(url_for('index'))
 
-    measures = [
-        {
-            'location': 'Bedroom1',
-            'article': 'RoomSensor',
-            'type': 'TemperatureC',
-            'value': '32',
-            'datetime': (datetime.now()-timedelta(minutes = 5)).strftime("%Y-%m-%d %H:%M:%S")
-        },
-        {
-            'location': 'LivingRoom',
-            'article': 'RoomSensor',
-            'type': 'TemperatureC',
-            'value': '37',
-            'datetime': (datetime.now()-timedelta(minutes = 10)).strftime("%Y-%m-%d %H:%M:%S")
-        }
-    ]
-
-    return render_template('index.html', title='Cats Dev Home', measures=measures)
+    events = Event.query.all()
+    readings = Reading.query.all()
+    return render_template('index.html', title='Cats Dev Home', events=events, readings=readings, form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -101,13 +99,45 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/user/<username>')
+@app.route('/user/<username>', methods=['GET', 'POST'])
 @login_required
 def user(username):
+    app.logger.debug('Entered user profile code section')
+    dev_form = DeviceForm()
+    dev_form.location.choices = [location.name for location in Location.query.all()]
+
+    act_form = ActionForm()
+
+    if dev_form.validate_on_submit():
+        device = Device(name=dev_form.name.data, 
+                        location = dev_form.location.data,
+                        description = dev_form.description.data,
+                        updated_by = current_user.username)
+        db.session.add(device)
+        db.session.commit()
+        flash('Device added!')
+        return redirect(url_for('user', username=current_user.username))
+    
+    if act_form.validate_on_submit():
+        action = Action(name=act_form.name.data, 
+                        description = act_form.description.data,
+                        updated_by = current_user.username)
+        db.session.add(action)
+        db.session.commit()
+        flash('Action added!')
+        return redirect(url_for('user', username=current_user.username))
     user = User.query.get_or_404(username)
     locations = Location.query.all()
     sensors = Sensor.query.all()
-    return render_template('user.html', user=user, locations=locations, sensors=sensors)
+    devices = Device.query.all()
+    actions = Action.query.all()
+    return render_template('user.html', user=user,
+                           locations=locations,
+                           sensors=sensors,
+                           devices=devices,
+                           actions=actions,
+                           dev_form=dev_form,
+                           act_form=act_form)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required

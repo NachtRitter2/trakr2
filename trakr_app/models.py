@@ -14,6 +14,7 @@ class User(UserMixin,db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     about_me = db.Column(db.String(256))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    events = db.relationship('Event', backref='submitter', lazy='dynamic')
     location = db.relationship('Location', backref='editor', lazy='dynamic')
     sensor = db.relationship('Sensor', backref='editor', lazy='dynamic')
 
@@ -43,6 +44,7 @@ class Location(db.Model):
     updated_by = db.Column(db.String(64), db.ForeignKey('user.username'))
     sensor = db.relationship('Sensor', backref='place', lazy='dynamic')
     reading = db.relationship('Reading', backref='place', lazy='dynamic')
+    device = db.relationship('Device', backref='place', lazy='dynamic')
 
     def __repr__(self):
         return '<Location {}>'.format(self.name)
@@ -69,6 +71,28 @@ class Reading(db.Model):
 
     def __repr__(self):
         return '<Reading {}: {} at {}>'.format(self.serial_nr, self.reading_dtm, self.value)
+
+class Device(db.Model):
+    name = db.Column(db.String(64), index=True, unique=True, primary_key=True)
+    location = db.Column(db.String(64), db.ForeignKey('location.name'), primary_key=True)
+    description = db.Column(db.String(140))
+    updated_dtm = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_by = db.Column(db.String(64), db.ForeignKey('user.username'))
+    event = db.relationship('Event', backref='item', lazy='dynamic')
+
+class Action(db.Model):
+    name = db.Column(db.String(16), index=True, unique=True, primary_key=True)
+    description = db.Column(db.String(140))
+    updated_dtm = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_by = db.Column(db.String(64), db.ForeignKey('user.username'))
+
+class Event(db.Model):
+    device = db.Column(db.String(64), db.ForeignKey('device.name'), index=True, primary_key=True)
+    action = db.Column(db.String(16), db.ForeignKey('action.name'))
+    event_dtm = db.Column(db.DateTime, primary_key=True)
+    updated_dtm = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_by = db.Column(db.String(64), db.ForeignKey('user.username'))
+
 
 @login.user_loader
 def load_user(username):

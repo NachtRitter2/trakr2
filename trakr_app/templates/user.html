@@ -18,6 +18,7 @@
     <hr>
     {% if user.is_admin %}
     <p>User is administrator</p>
+
     <h3>Locations</h3>
     <table>
         <tr valign="top">
@@ -30,6 +31,7 @@
             {% include '_location.html' %}
         {% endfor %}    
     </table>
+    <hr/>
     <h3>Sensors</h3>
     <table>
         <tr valign="top">
@@ -46,7 +48,79 @@
             {% include '_sensor.html' %}
         {% endfor %}    
     </table>
-
+    <hr/>
+    <h3>Devices</h3>
+	<form action="" method="post">
+		{{ dev_form.hidden_tag() }}
+		<p>
+			{{ dev_form.name.label }}<br/>
+			{{ dev_form.name }}<br/>
+			{% for error in dev_form.name.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ dev_form.location.label }}<br/>
+			{{ dev_form.location }}<br/>
+			{% for error in dev_form.location.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ dev_form.description.label }}<br/>
+			{{ dev_form.description(cols=50, rows=4) }}<br/>
+			{% for error in dev_form.description.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>{{ dev_form.submit() }} </p>
+	
+	</form>
+    <table>
+        <tr valign="top">
+            <th>Name</th>
+            <th>Location</th>
+            <th>Description</th>
+            <th>Updated Date</th>
+            <th>Updated By</th>
+        </tr>
+        {% for device in devices %}
+            {% include '_device.html' %}
+        {% endfor %}    
+    </table>
+    <hr/>
+    <h3>Actions</h3>
+  	<form action="" method="post">
+		{{ act_form.hidden_tag() }}
+		<p>
+			{{ act_form.name.label }}<br/>
+			{{ act_form.name }}<br/>
+			{% for error in act_form.name.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>
+			{{ act_form.description.label }}<br/>
+			{{ act_form.description(cols=50, rows=4) }}<br/>
+			{% for error in act_form.description.errors %}
+			<span style="color: red;">[{{ error }}]</span>
+			{% endfor %}
+		</p>
+		<p>{{ act_form.submit() }} </p>
+	
+	</form>
+    <table>
+        <tr valign="top">
+            <th>Name</th>
+            <th>Description</th>
+            <th>Updated Date</th>
+            <th>Updated By</th>
+        </tr>
+        {% for action in actions %}
+            {% include '_action.html' %}
+        {% endfor %}    
+    </table>
+  
     {% else %}
     <p>User is viewer</p>
     {% endif %}
